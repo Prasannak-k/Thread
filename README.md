@@ -1,4 +1,4 @@
-np# Thread — a real-time chat app
+Thread — a real-time chat app
 
 A two-person / group chat app with accounts, threaded replies, moderated deletion,
 and admin-controlled groups — built as a small full-stack project (no client-only
@@ -86,8 +86,3 @@ Things worth calling out if you're describing this project:
 - Soft-delete pattern for messages (tombstone rows, not `DELETE FROM`) so reply
   chains and audit trails stay intact
 
-## What's not in here (intentionally, to keep scope contained)
-
-For a production version you'd add things like: rate limiting, refresh tokens /
-token revocation, input length limits, HTTPS termination, and a process manager
-(pm2/systemd) for the server. Happy to add any of these if you want to extend it.
