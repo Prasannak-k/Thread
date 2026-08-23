@@ -299,7 +299,8 @@ button { font-family: inherit; }
   border: 1px solid var(--paper-line);
   font-size: 14.5px;
   line-height: 1.42;
-  word-wrap: break-word;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   white-space: pre-wrap;
 }
 .msg-row.is-mine .bubble {
