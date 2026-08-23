@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Thread — chat</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===================== AUTH SCREEN ===================== -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="auth-card__brand"><span class="brand__mark">◇</span><span class="brand__name">Thread</span></div>
+    <p class="auth-card__tagline">Sign in to start chatting.</p>
+
+    <div class="auth-tabs">
+      <button class="auth-tab is-active" data-mode="login">Log in</button>
+      <button class="auth-tab" data-mode="register">Create account</button>
+    </div>
+
+    <div class="auth-error" id="authError" hidden></div>
+
+    <form class="auth-form" id="authForm">
+      <div>
+        <label class="field-label" style="margin:0 0 6px;">Username</label>
+        <input class="text-input" id="authUsername" autocomplete="username" placeholder="e.g. alice" required />
+      </div>
+      <div>
+        <label class="field-label" style="margin:0 0 6px;">Password</label>
+        <input class="text-input" id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        <div class="auth-hint" id="authHint">At least 4 characters.</div>
+      </div>
+      <button type="submit" class="primary-btn" id="authSubmit" style="margin-top:4px;">Log in</button>
+    </form>
+  </div>
+</div>
+
+<!-- ===================== APP ===================== -->
+<div class="app" id="appRoot" hidden>
+
+  <aside class="sidebar">
+    <div class="sidebar__brand">
+      <span class="brand__mark">◇</span>
+      <span class="brand__name">Thread</span>
+    </div>
+
+    <div class="identity">
+      <div class="identity__label">You are</div>
+      <button class="identity__switch" id="identitySwitch" style="cursor:default;">
+        <span class="avatar" id="identityAvatar">A</span>
+        <span class="identity__name" id="identityName">—</span>
+      </button>
+    </div>
+
+    <button class="new-chat-btn" id="newChatBtn">
+      <span class="new-chat-btn__icon">＋</span> New chat
+    </button>
+
+    <div class="chat-list" id="chatList"></div>
+
+    <div class="sidebar__footer">
+      <div class="conn-status"><span class="conn-dot" id="connDot"></span><span id="connLabel">connecting…</span></div>
+      <button class="logout-btn" id="logoutBtn">Log out</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-state__mark">◇</div>
+      <p>Pick a conversation, or start a new one.</p>
+    </div>
+
+    <div class="chat" id="chatView" hidden>
+      <header class="chat__header">
+        <div class="chat__header-info">
+          <span class="chat__title" id="chatTitle"></span>
+          <span class="chat__subtitle" id="chatSubtitle"></span>
+        </div>
+        <button class="icon-btn" id="groupSettingsBtn" title="Group settings" hidden>⚙</button>
+      </header>
+
+      <div class="messages" id="messages"></div>
+
+      <div class="reply-bar" id="replyBar" hidden>
+        <div class="reply-bar__stripe"></div>
+        <div class="reply-bar__body">
+          <div class="reply-bar__to">Replying to <span id="replyBarName"></span></div>
+          <div class="reply-bar__text" id="replyBarText"></div>
+        </div>
+        <button class="reply-bar__cancel" id="replyBarCancel">✕</button>
+      </div>
+
+      <div class="composer" id="composer">
+        <textarea id="composerInput" placeholder="Write a message…" rows="1"></textarea>
+        <button class="send-btn" id="sendBtn">Send</button>
+      </div>
+      <div class="composer-lock" id="composerLock" hidden>Only admins can send messages in this group.</div>
+    </div>
+  </main>
+</div>
+
+<!-- NEW CHAT MODAL -->
+<div class="modal-overlay" id="newChatOverlay" hidden>
+  <div class="modal">
+    <div class="modal__header">
+      <h2 id="newChatTitle">Start a conversation</h2>
+      <button class="icon-btn" id="newChatClose">✕</button>
+    </div>
+    <div class="modal__tabs">
+      <button class="modal__tab is-active" data-mode="dm">Direct message</button>
+      <button class="modal__tab" data-mode="group">New group</button>
+    </div>
+
+    <div class="modal__body" id="dmPanel">
+      <p class="modal__hint">Choose someone to message.</p>
+      <div class="pick-list" id="dmPickList"></div>
+    </div>
+
+    <div class="modal__body" id="groupPanel" hidden>
+      <label class="field-label">Group name</label>
+      <input type="text" id="groupNameInput" class="text-input" placeholder="e.g. Weekend Trip" />
+      <label class="field-label">Members</label>
+      <div class="pick-list" id="groupPickList"></div>
+      <button class="primary-btn" id="createGroupBtn">Create group</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP SETTINGS MODAL -->
+<div class="modal-overlay" id="groupSettingsOverlay" hidden>
+  <div class="modal">
+    <div class="modal__header">
+      <h2>Group settings</h2>
+      <button class="icon-btn" id="groupSettingsClose">✕</button>
+    </div>
+    <div class="modal__body">
+      <label class="field-label">Members</label>
+      <div class="member-list" id="memberList"></div>
+
+      <div id="adminOnlySection">
+        <label class="field-label">Add member</label>
+        <div class="add-member-row">
+          <select id="addMemberSelect" class="text-input"></select>
+          <button class="secondary-btn" id="addMemberBtn">Add</button>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-row__title">Only admins can message</div>
+            <div class="toggle-row__desc">Regular members can read but not send.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleOnlyAdminsMessage" />
+            <span class="switch__track"></span>
+          </label>
+        </div>
+
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-row__title">Only admins can delete messages</div>
+            <div class="toggle-row__desc">Members lose the ability to delete their own messages.</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="toggleOnlyAdminsDelete" />
+            <span class="switch__track"></span>
+          </label>
+        </div>
+      </div>
+
+      <button class="leave-group-btn" id="leaveGroupBtn">Leave group</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script src="app.js"></script>
+</body>
+</html>

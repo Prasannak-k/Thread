@@ -1,0 +1,5 @@
+node_modules/
+thread.db
+thread.db-shm
+thread.db-wal
+*.log
